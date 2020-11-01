@@ -4,10 +4,15 @@ Open Recipe Format Reference
 
 oven_fan
 --------
-Setting to be used with convection oven. Possible values are "Off", "Low" and
+Setting to be used with convection ovens. Possible values are "Off", "Low" and
 "High". If not specified, it is assumed to be "Off". If specified, all software
 should display and print this value. If not specified, it is up to the software
 whether or not it is displayed and/or printed, but it should be consistent.
+
+prep_time
+---------
+Estimated time in H:M taken to prepare the ingredients for the recipe. This 
+should include time for marinating, etc.
 
 oven_temp
 ---------
@@ -19,7 +24,7 @@ The number of degrees.
 
 unit
 ~~~~
-Should be C or F.
+Must be "C" for degrees Celsius or "F" for degrees Fahrenheit
 
 oven_time
 ---------
@@ -40,14 +45,23 @@ of sugar" (as specified below) than to list "2 cups sugar, divided".
 ingredient
 ~~~~~~~~~~
 A dict of items, describing an ingredient, and how much of that ingredient to
-use.
+use. Multiple ``ingredient_set`` dicts can be present if each has defined a
+child ``ingredient_set`` field.
+
+ingredient_set
+``````````````
+A string used to annotate a group of related ingredients together. This could
+be "dry ingredients" and "wet ingredients", "cake" and "frosting", etc.
+
+If this field is not present, and there are more than one ingredient dicts,
+then this field is *required*!
 
 amounts
 ```````
 A list of dicts which describe the amounts to use. Normally, the list will only
 contain one dict. In cases where multiple yields need to be stored (i.e. 50
-cookies vs 100 cookes vs 250 cookies), each yield will have its own dict in this
-list, in the same order as the recipe's yield field.
+cookies vs 100 cookies vs 250 cookies), each yield will have its own dict in
+this list, in the same order as the recipe's yield field.
 
 amount
 ******
@@ -160,11 +174,11 @@ A dict, which can contain either a ``control_point`` or a
 
 control_point
 `````````````
-Refers to specific HACCP guidelines relevant to this step.
+Refers to specific HACCP_ guidelines relevant to this step.
 
 critical_control_point
 ``````````````````````
-Refers to specific HACCP guidelines relevant to this step, which are critical
+Refers to specific HACCP_ guidelines relevant to this step, which are critical
 to the safety outcome of this recipe. For instance, "Cook until the food
 reaches an internal temperature of 165F."
 
@@ -189,9 +203,56 @@ unit
 Generally "servings", but up to the user. Can be "packages", "cups", "glasses",
 etc.
 
+recommended units
+~~~~~~~~~~~~~~~~~
+- Serving(s): serving(s)
+- Tablespoon(s): T, tbl, or tbsp(s)
+- Teaspoon(s): t or tsp(s)
+- Gallon(s): gal(s) or gallon(s)
+- Quart(s): qt(s) or quart(s)
+- Pint(s): pt(s) or pint(s)
+- Cup(s): c or cup(s)
+- Ounce(s): oz or ounce(s)
+- Gram(s): g or gram(s)
+- Milliliter(s): ml or milliliter(s)
+- Liter(s): L or liter(s)
+
+unrecommended units
+~~~~~~~~~~~~~~~~~~~
+- Can(s): can(s)
+  - Not recommended. Use grams, ounces, cups, or milliliters if possible.
+    This can be added under ``notes`` for the specific ingredient if necessary.
+    Cans do not hold a standard volume
+  - Software should display this unit as "can(s)"
+  - Example:
+
+.. code:: yaml
+  ingredients:
+    - ingredient_set: Bread
+    - ingredient: Diced Tomatoes
+      usda_num: 00000
+      amounts:
+        - amount: 36
+          unit: oz
+      notes: 
+        - One 36oz can or Two 18oz cans.
+        - Roasted with peppers is highly recommended.
+
+- Package(s): pkg(s) or package(s)
+  - Not recommended. Use grams, ounces, or milliliters if possible. Packages can
+    be added under "Notes" for the specific ingredient if necessary. Packages
+    do not contain a standard volume.
+  - Software should display this unit as "package(s)"
+
+- Glass(es): glass(es)
+  - Not recommended. Use grams, ounces, cups, or milliliters if possible.
+    Glasses do hold a standard volume.
+  - Software should display this unit as "glass(es)"
+
 X-<field>
 ---------
 A lot of different information about a recipe can be stored. Until a field has
 been officially accepted into the spec, it should start with a capital X,
 followed by a dash.
 
+.. _HACCP: https://www.fda.gov/food/guidance-regulation-food-and-dietary-supplements/hazard-analysis-critical-control-point-haccp
